@@ -2,20 +2,24 @@
 This acts as the view in a MVC pattern, and is responsible for all
 user interaction. For game logic see the FBullCowGame class.
 */
+#pragma once
+
 #include <iostream>
 #include <string>
 #include "FBullCowGame.h"
 
+// to make syntax Unreal friendly
 using FText = std::string;
 using int32 = int;
 
+// function prototypes as outside a class
 void PrintIntro();
 void PlayGame();
 FText GetValidGuess();
 bool AskToPlayAgain();
 void PrintGameSummary();
 
-FBullCowGame BCGame; // instantiate a new game
+FBullCowGame BCGame; // instantiate a new game, whic we re-use across plays
 
 // the entry point for our app
 int main()
@@ -31,7 +35,6 @@ int main()
 	return 0; // exit game
 }
 
-// introduce the game
 void PrintIntro()
 {
 	std::cout << "\n\nWelcome to Bulls and Cows, a fun word game.\n";
@@ -41,7 +44,7 @@ void PrintIntro()
 	return;
 }
 
-// loop fon the number of turns asking for guesses
+// plays a single game to completion
 void PlayGame()
 {
 	BCGame.Reset();
@@ -73,7 +76,8 @@ FText GetValidGuess()
 	do {
 		// get guess from player
 		int32 CurrentTry = BCGame.GetCurrentTry();
-		std::cout << "Try " << CurrentTry << ". Enter your guess: ";
+		std::cout << "Try " << CurrentTry << " of " << BCGame.GetMaxTries();
+		std::cout << ". Enter your guess: ";
 		
 		std::getline(std::cin, Guess);
 
@@ -81,19 +85,18 @@ FText GetValidGuess()
 		switch (Status)
 		{
 		case EGuessStatus::Wrong_Length:
-			std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word. \n";
+			std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word. \n\n";
 			break;
 		case EGuessStatus::Not_Isogramm:
-			std::cout << "Please enter a word without repeating letters. \n";
+			std::cout << "Please enter a word without repeating letters. \n\n";
 			break;
 		case EGuessStatus::Not_Lowercase:
-			std::cout << "Please enter all lowercase letters. \n";
+			std::cout << "Please enter all lowercase letters. \n\n";
 			break;
 		default:
 			// assume the guess is valid
 			break;
 		}
-		std::cout << std::endl;
 	} while (Status != EGuessStatus::OK); // keep looping until we get no errors
 
 	return Guess;
