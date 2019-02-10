@@ -1,31 +1,30 @@
 #include "FBullCowGame.h"
+#include <map>
+#define TMap std::map
 
 FBullCowGame::FBullCowGame() { Reset(); }
 
 int32 FBullCowGame::GetMaxTries() const { return MyMaxTries; }
 int32 FBullCowGame::GetCurrentTry() const { return MyCurrentTry; }
 int32 FBullCowGame::GetHiddenWordLength() const { return MyHiddenWord.length(); }
-
+bool FBullCowGame::IsGameWon() const { return bGameIsWon; }
 
 void FBullCowGame::Reset()
 {
 	constexpr int32 MAX_TRIES = 8;
-	const FString HIDDEN_WORD = "and";
+	const FString HIDDEN_WORD = "planet";
 
 	MyMaxTries = MAX_TRIES;
 	MyHiddenWord = HIDDEN_WORD;
 	MyCurrentTry = 1;
+	bGameIsWon = false;
 
 	return;
 }
 
-bool FBullCowGame::IsGameWon() const
-{
-	return false;
-}
 EGuessStatus FBullCowGame::CheckGuessValidity(FString Guess) const
 {
-	if (false) // if the guess in't an isogram
+	if (!IsIsogram(Guess)) // if the guess in't an isogram
 	{
 		return EGuessStatus::Not_Isogramm; // return error
 	}
@@ -44,7 +43,7 @@ EGuessStatus FBullCowGame::CheckGuessValidity(FString Guess) const
 }
 
 // receives a VALID guess, incriments try, and return count
-FBullCowCount FBullCowGame::SubmitGuess(FString Guess)
+FBullCowCount FBullCowGame::SubmitValidGuess(FString Guess)
 {
 	// incriment the try number
 	MyCurrentTry++;
@@ -52,13 +51,13 @@ FBullCowCount FBullCowGame::SubmitGuess(FString Guess)
 	// setup return variable
 	FBullCowCount BullCowCount;
 
-	// loop through all leters in the guess
-	int32 HiddenWordLength = MyHiddenWord.length();
+	int32 WordLength = GetHiddenWordLength(); // assumint same length as guess
 	
-	for (int32 MHWChar = 0; MHWChar < HiddenWordLength; MHWChar++)
+	// loop through all leters in the hidden word
+	for (int32 MHWChar = 0; MHWChar < WordLength; MHWChar++)
 	{
-		// compare letters agains the hidden word
-		for (int32 GChar = 0; GChar < Guess.length(); GChar++)
+		// compare letters agains the guess
+		for (int32 GChar = 0; GChar < WordLength; GChar++)
 		{
 			// if they match
 			if (Guess[GChar] == MyHiddenWord[MHWChar])
@@ -70,11 +69,31 @@ FBullCowCount FBullCowGame::SubmitGuess(FString Guess)
 				}
 				else
 				{
-					BullCowCount.Cows++;// increment cows
+					BullCowCount.Cows++; // increment cows
 				}
 			}
 		}
 	}
 
+	if (BullCowCount.Bulls == WordLength) {
+		bGameIsWon = true;
+	}
+	else {
+		bGameIsWon = false;
+	}
+
 	return BullCowCount;
+}
+
+bool FBullCowGame::IsIsogram(FString Word) const
+{
+	// treat 0 and 1 letter words as isograms
+
+	// loop through all the letters of the word
+		// if the letter is in the map
+			// we do NOT have an isogram
+		// otherwise
+			// add the letter to the map as seen
+
+	return true; // for example in cases where /0 is entered
 }
